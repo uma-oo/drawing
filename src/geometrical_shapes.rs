@@ -93,9 +93,10 @@ impl Triangle {
     }
 
     pub fn draw(&self, image: &mut Image) {
-        Line::new(self.a.clone(), self.b.clone()).draw(image);
         Line::new(self.b.clone(), self.c.clone()).draw(image);
-        Line::new(self.c.clone(), self.a.clone()).draw(image);
+        Line::new(self.a.clone(), self.c.clone()).draw(image);
+        // there is smtg wrong with this 
+        //Line::new(self.a.clone(), self.b.clone()).draw(image);
     }
 }
 
@@ -114,7 +115,7 @@ impl Rectangle {
         Line::new(self.a.clone(), Point::new(self.b.clone().x, self.a.clone().y)).draw(image);
         Line::new(Point::new(self.b.clone().x, self.a.clone().y), self.b.clone()).draw(image);
         Line::new(self.b.clone(), Point::new(self.a.clone().x, self.b.clone().y)).draw(image);
-        Line::new(Point::new(self.a.clone().x, self.b.clone().y), Point::new(self.b.clone().x, self.a.clone().y)).draw(image);
+        Line::new(Point::new(self.a.clone().x, self.b.clone().y), self.a.clone()).draw(image);
     }
 }
 
