@@ -1,6 +1,4 @@
-
-mod geometrical_shapes;
-
+mod geometrical_shapes; 
 use geometrical_shapes as gs;
 use gs::{Displayable, Drawable};
 use raster::{Color, Image};
@@ -26,7 +24,7 @@ fn main() {
         gs::Circle::random(image.width, image.height).draw(&mut image);
     }
 
-    raster::save(&image, "image.png").unwrap();
+    raster::save(&image, "image.png");
 }
 
 impl Displayable for Image {
