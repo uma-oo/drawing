@@ -63,10 +63,10 @@ impl Line {
         let mut points = Vec::new();
         let x_diff = (self.a.x - self.b.x).abs();
         let y_diff = (self.a.y - self.b.y).abs();
-        for i in 1..quantity {
+        for i in 0..quantity {
             let y_pnt: i32 = (y_diff * i) / quantity;
             let x_pnt: i32 = (x_diff * i) / quantity;
-            points.push(Point::new(self.a.x + x_pnt, self.a.y + y_pnt));
+            points.push(Point::new(self.a.x.min(self.b.x) + x_pnt, self.a.y.min(self.b.y) + y_pnt));
         }
 
         points
