@@ -1,10 +1,6 @@
-
 use rand::prelude::*;
 
 use raster::{ Color, Image };
-
-
-
 
 pub trait Drawable {
     fn draw(&mut self, image: &mut Image);
@@ -16,13 +12,14 @@ pub trait Displayable {
 }
 
 // struct of point implementation
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Point {
     x: i32,
     y: i32,
 }
 
 // implement it
+// done with it
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
@@ -36,9 +33,10 @@ impl Point {
     }
 
     pub fn draw(&self, image: &mut Image) {
-        image.display(self.x,self.y,Color::white());
+        image.display(self.x, self.y, Color::white());
     }
 }
+
 #[derive(Debug)]
 pub struct Line {
     a: Point,
@@ -61,7 +59,25 @@ impl Line {
         Line::new(Point::new(a_x, a_y), Point::new(b_x, b_y))
     }
 
-    pub fn draw(&self, image: &mut Image) {}
+    fn get_points(&self, quantity: i32) -> Vec<Point> {
+        let mut points = Vec::new();
+        let x_diff = (self.a.x - self.b.x).abs();
+        let y_diff = (self.a.y - self.b.y).abs();
+        for i in 1..quantity {
+            let y_pnt: i32 = (y_diff * i) / quantity;
+            let x_pnt: i32 = (x_diff * i) / quantity;
+            points.push(Point::new(self.a.x + x_pnt, self.a.y + y_pnt));
+        }
+
+        points
+    }
+
+    pub fn draw(&self, image: &mut Image) {
+        let points = &self.get_points(3000);
+        for point in points {
+            point.draw(image);
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -73,11 +89,13 @@ pub struct Triangle {
 
 impl Triangle {
     pub fn new(a: &Point, b: &Point, c: &Point) -> Self {
-        Self { a, b, c }
+        Self { a: a.clone(), b: b.clone(), c: c.clone() }
     }
 
-    pub fn draw(&self , image: &mut Image) {
-
+    pub fn draw(&self, image: &mut Image) {
+        Line::new(self.a.clone(), self.b.clone()).draw(image);
+        Line::new(self.b.clone(), self.c.clone()).draw(image);
+        Line::new(self.c.clone(), self.a.clone()).draw(image);
     }
 }
 
@@ -89,11 +107,14 @@ pub struct Rectangle {
 
 impl Rectangle {
     pub fn new(a: &Point, b: &Point) -> Self {
-        Self { a, b }
+        Self { a: a.clone(), b: b.clone() }
     }
 
     pub fn draw(&self, image: &mut Image) {
-
+        Line::new(self.a.clone(), Point::new(self.b.clone().x, self.a.clone().y)).draw(image);
+        Line::new(Point::new(self.b.clone().x, self.a.clone().y), self.b.clone()).draw(image);
+        Line::new(self.b.clone(), Point::new(self.a.clone().x, self.b.clone().y)).draw(image);
+        Line::new(Point::new(self.a.clone().x, self.b.clone().y), Point::new(self.b.clone().x, self.a.clone().y)).draw(image);
     }
 }
 
@@ -119,7 +140,5 @@ impl Circle {
         Circle::new(Point::new(x_point, y_point), radius)
     }
 
-    pub fn draw(&self, image: &mut Image) {
-
-    }
+    pub fn draw(&self, image: &mut Image) {}
 }
