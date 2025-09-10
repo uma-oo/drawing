@@ -17,7 +17,7 @@ pub trait Displayable {
 }
 
 // struct of point implementation
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -44,7 +44,6 @@ impl Drawable for Point {
     }
 }
 
-#[derive(Debug)]
 pub struct Line {
     a: Point,
     b: Point,
@@ -90,7 +89,6 @@ impl Drawable for Line {
     }
 }
 
-#[derive(Debug)]
 pub struct Triangle {
     a: Point,
     b: Point,
@@ -102,16 +100,25 @@ impl Triangle {
         Self { a: a.clone(), b: b.clone(), c: c.clone() }
     }
 }
-impl Drawable for Triangle {
-     fn draw(&self, image: &mut Image) {
-        Line::new(self.a.clone(), self.b.clone()).draw(image);
-        Line::new(self.b.clone(), self.c.clone()).draw(image);
-        Line::new(self.c.clone(), self.a.clone()).draw(image);
-        // there is smtg wrong with this
-    }
+
+impl Drawable for Rectangle {
+	fn draw(&self, image: &mut Image) {
+		let x_min = self.p1.x.min(self.p2.x);
+		let x_max = self.p1.x.max(self.p2.x);
+		let y_min = self.p1.y.min(self.p2.y);
+		let y_max = self.p1.y.max(self.p2.y);
+
+		for x in x_min..=x_max {
+			image.display(x, y_min, self.color());
+			image.display(x, y_max, self.color());
+		}
+		for y in y_min..=y_max {
+			image.display(x_min, y, self.color());
+			image.display(x_max, y, self.color());
+		}
+	}
 }
 
-#[derive(Debug)]
 pub struct Rectangle {
     a: Point,
     b: Point,
@@ -140,16 +147,13 @@ pub struct Circle {
 }
 
 impl Circle {
-    pub fn new(point: Point, radius: i32) -> Self {
-        Self {
-            center: point,
-            radius,
-        }
+     pub fn new(center: &Point, radius: i32) -> Self {
+        Self { center: Point::new(center.x, center.y), radius }
     }
 
+
     pub fn random(width: i32, height: i32) -> Self {
-        let x_point = rand::random_range(0..width);
-        let y_point = rand::random_range(0..height);
+        center: Point::random(width, height),
         let radius = rand::random_range(0..=width.min(height));
         Circle::new(Point::new(x_point, y_point), radius)
     }
