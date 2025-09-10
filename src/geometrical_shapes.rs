@@ -46,7 +46,7 @@ impl Drawable for Point {
 pub struct Line {
     a: Point,
     b: Point,
-    pub color: Color,
+    color: Color,
 }
 
 impl Line {
