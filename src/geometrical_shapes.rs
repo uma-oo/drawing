@@ -16,7 +16,7 @@ pub trait Displayable {
 }
 
 // struct of point implementation
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -27,7 +27,7 @@ pub struct Point {
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
-        Self { x, y}
+        Self { x, y }
     }
     pub fn random(width: i32, height: i32) -> Self {
         let y = rand::random_range(0..height);
@@ -70,7 +70,7 @@ impl Line {
         let mut points = Vec::new();
         let dx = self.b.x - self.a.x;
         let dy = self.b.y - self.a.y;
-        let quantity = dx.abs().min(dy.abs());
+        let quantity = dx.abs().max(dy.abs());
         for i in 0..=quantity {
             let t = (i as f32) / (quantity as f32);
             let x_pnt = (self.a.x as f32) + (dx as f32) * t;

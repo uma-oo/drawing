@@ -20,7 +20,6 @@ fn main() {
     );
     triangle.draw(&mut image);
 
-    gs::Circle::new(&gs::Point::new(50,50), 40).draw(&mut image);
 
     for _ in 1..50 {
         gs::Circle::random(image.width, image.height).draw(&mut image);
