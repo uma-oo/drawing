@@ -161,7 +161,7 @@ impl Circle {
 
     pub fn random(width: i32, height: i32) -> Self {
         let center = Point::random(width, height);
-        let radius = rand::random_range(5..width);
+        let radius = rand::random_range(1..width);
         Circle::new(&center, radius)
     }
 }
@@ -174,7 +174,7 @@ impl Drawable for Circle {
         let steps = (2.0 * PI) / (perimter as f64);
         let mut i: f64 = 0.0;
         let color = Circle::color();
-        while i <= 2.0*PI {
+        while i <=2.0*PI {
             let x = (self.center.x as f64) + (self.radius as f64) * i.cos();
             let y = (self.center.y as f64) + (self.radius as f64) * i.sin();
             image.display(x.round() as i32, y.round() as i32, color.clone());
