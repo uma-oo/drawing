@@ -1,14 +1,13 @@
-// test = random(a, b, c) % 255
-// color = Color::rba(a, b, c);
-
-use rand::prelude::*;
-
 use raster::{ Color, Image };
+use std::f64::consts::PI;
 
 pub trait Drawable {
     fn draw(&self, image: &mut Image);
-    fn color(&self)-> Color{
-         Color::white()
+    fn color() -> Color {
+        let r = rand::random_range(0..=255);
+        let g = rand::random_range(0..=255);
+        let b = rand::random_range(0..=255);
+        Color::rgb(r, g, b)
     }
 }
 
@@ -17,7 +16,7 @@ pub trait Displayable {
 }
 
 // struct of point implementation
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -25,7 +24,6 @@ pub struct Point {
 
 // implement it
 // done with it
-
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
@@ -40,13 +38,15 @@ impl Point {
 
 impl Drawable for Point {
     fn draw(&self, image: &mut Image) {
-        image.display(self.x, self.y, self.color());
+        image.display(self.x, self.y, Point::color());
     }
 }
 
+#[derive(Debug)]
 pub struct Line {
     a: Point,
     b: Point,
+    pub color: Color,
 }
 
 impl Line {
@@ -54,6 +54,7 @@ impl Line {
         Self {
             a: a,
             b: b,
+            color: Line::color(),
         }
     }
 
@@ -69,7 +70,7 @@ impl Line {
         let mut points = Vec::new();
         let dx = self.b.x - self.a.x;
         let dy = self.b.y - self.a.y;
-        let quantity = dx.abs() + dy.abs() ;
+        let quantity = dx.abs() + dy.abs();
         for i in 0..=quantity {
             let t = (i as f32) / (quantity as f32);
             let x_pnt = (self.a.x as f32) + (dx as f32) * t;
@@ -84,11 +85,12 @@ impl Drawable for Line {
     fn draw(&self, image: &mut Image) {
         let points = &self.get_points();
         for point in points {
-            point.draw(image);
+            image.display(point.x, point.y, self.color.clone());
         }
     }
 }
 
+#[derive(Debug)]
 pub struct Triangle {
     a: Point,
     b: Point,
@@ -101,24 +103,23 @@ impl Triangle {
     }
 }
 
-impl Drawable for Rectangle {
-	fn draw(&self, image: &mut Image) {
-		let x_min = self.p1.x.min(self.p2.x);
-		let x_max = self.p1.x.max(self.p2.x);
-		let y_min = self.p1.y.min(self.p2.y);
-		let y_max = self.p1.y.max(self.p2.y);
+impl Drawable for Triangle {
+    fn draw(&self, image: &mut Image) {
+        let color = Triangle::color();
+        let lines = Vec::from([
+            Line::new(self.a.clone(), self.b.clone()),
+            Line::new(self.b.clone(), self.c.clone()),
+            Line::new(self.c.clone(), self.a.clone()),
+        ]);
 
-		for x in x_min..=x_max {
-			image.display(x, y_min, self.color());
-			image.display(x, y_max, self.color());
-		}
-		for y in y_min..=y_max {
-			image.display(x_min, y, self.color());
-			image.display(x_max, y, self.color());
-		}
-	}
+        for mut line in lines {
+            line.color = color.clone();
+            line.draw(image);
+        }
+    }
 }
 
+#[derive(Debug)]
 pub struct Rectangle {
     a: Point,
     b: Point,
@@ -132,14 +133,21 @@ impl Rectangle {
 
 impl Drawable for Rectangle {
     fn draw(&self, image: &mut Image) {
-        Line::new(self.a.clone(), Point::new(self.b.clone().x, self.a.clone().y)).draw(image);
-        Line::new(Point::new(self.b.clone().x, self.a.clone().y), self.b.clone()).draw(image);
-        Line::new(self.b.clone(), Point::new(self.a.clone().x, self.b.clone().y)).draw(image);
-        Line::new(Point::new(self.a.clone().x, self.b.clone().y), self.a.clone()).draw(image);
+        let color = Rectangle::color();
+        let lines = Vec::from([
+            Line::new(self.a.clone(), Point::new(self.b.clone().x, self.a.clone().y)),
+            Line::new(Point::new(self.b.clone().x, self.a.clone().y), self.b.clone()),
+            Line::new(self.b.clone(), Point::new(self.a.clone().x, self.b.clone().y)),
+            Line::new(Point::new(self.a.clone().x, self.b.clone().y), self.a.clone()),
+        ]);
+
+        for mut line in lines {
+            line.color = color.clone();
+            line.draw(image);
+        }
     }
 }
-
-// circle section
+//circle section
 #[derive(Debug)]
 pub struct Circle {
     center: Point,
@@ -147,30 +155,30 @@ pub struct Circle {
 }
 
 impl Circle {
-     pub fn new(center: &Point, radius: i32) -> Self {
+    pub fn new(center: &Point, radius: i32) -> Self {
         Self { center: Point::new(center.x, center.y), radius }
     }
 
-
     pub fn random(width: i32, height: i32) -> Self {
-        center: Point::random(width, height),
-        let radius = rand::random_range(0..=width.min(height));
-        Circle::new(Point::new(x_point, y_point), radius)
+        let center = Point::random(width, height);
+        let radius = rand::random_range(5..width);
+        Circle::new(&center, radius)
     }
 }
 
-
-
+//  x = cx + r * cos(θ) and y = cy + r * sin(θ)
+// teta will be starting from 0 to 2PI
 impl Drawable for Circle {
-    fn color(&self)-> Color {
-        let r = rand::random_range(0..=255);
-        let g = rand::random_range(0..=255);
-        let b = rand::random_range(0..=255);
-        Color::Rgb(r,g,b)
-    }
     fn draw(&self, image: &mut Image) {
-        let teta = 0;
-
-
+        let perimter = 2.0 * PI * (self.radius as f64);
+        let steps = (2.0 * PI) / (perimter as f64);
+        let mut i: f64 = 1.0;
+        let color = Circle::color();
+        while i <= perimter {
+            let x = (self.center.x as f64) + (self.radius as f64) * i.cos();
+            let y = (self.center.y as f64) + (self.radius as f64) * i.sin();
+            image.display(x.round() as i32, y.round() as i32, color.clone());
+            i += steps;
+        }
     }
 }
