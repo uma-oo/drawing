@@ -59,21 +59,22 @@ impl Line {
         Line::new(Point::new(a_x, a_y), Point::new(b_x, b_y))
     }
 
-    fn get_points(&self, quantity: i32) -> Vec<Point> {
+    fn get_points(&self) -> Vec<Point> {
         let mut points = Vec::new();
-        let x_diff = (self.a.x - self.b.x).abs();
-        let y_diff = (self.a.y - self.b.y).abs();
-        for i in 0..quantity {
-            let y_pnt: i32 = (y_diff * i) / quantity;
-            let x_pnt: i32 = (x_diff * i) / quantity;
-            points.push(Point::new(self.a.x.min(self.b.x) + x_pnt, self.a.y.min(self.b.y) + y_pnt));
+        let dx = self.b.x - self.a.x;
+        let dy = self.b.y - self.a.y;
+        let quantity = if dx.abs()>dy.abs() {dx.abs()}  else {dy.abs()};
+        for i in 0..=quantity {
+            let t = (i as f32) / (quantity as f32);
+            let x_pnt = (self.a.x as f32) + (dx as f32) * t;
+            let y_pnt = (self.a.y as f32) + (dy as f32) * t;
+            points.push(Point::new(x_pnt.round() as i32, y_pnt.round() as i32));
         }
-
         points
     }
 
     pub fn draw(&self, image: &mut Image) {
-        let points = &self.get_points(3000);
+        let points = &self.get_points();
         for point in points {
             point.draw(image);
         }
@@ -93,10 +94,10 @@ impl Triangle {
     }
 
     pub fn draw(&self, image: &mut Image) {
+        Line::new(self.a.clone(), self.b.clone()).draw(image);
         Line::new(self.b.clone(), self.c.clone()).draw(image);
-        Line::new(self.a.clone(), self.c.clone()).draw(image);
-        // there is smtg wrong with this 
-        //Line::new(self.a.clone(), self.b.clone()).draw(image);
+        Line::new(self.c.clone(), self.a.clone()).draw(image);
+        // there is smtg wrong with this
     }
 }
 
@@ -141,5 +142,8 @@ impl Circle {
         Circle::new(Point::new(x_point, y_point), radius)
     }
 
-    pub fn draw(&self, image: &mut Image) {}
+    pub fn draw(&self, image: &mut Image) {
+
+
+    }
 }
