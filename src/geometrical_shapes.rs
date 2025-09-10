@@ -1,10 +1,15 @@
+// test = random(a, b, c) % 255
+// color = Color::rba(a, b, c);
+
 use rand::prelude::*;
 
 use raster::{ Color, Image };
 
 pub trait Drawable {
-    fn draw(&mut self, image: &mut Image);
-    fn color(&self);
+    fn draw(&self, image: &mut Image);
+    fn color(&self)-> Color{
+         Color::white()
+    }
 }
 
 pub trait Displayable {
@@ -21,19 +26,21 @@ pub struct Point {
 // implement it
 // done with it
 
+
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-
     pub fn random(width: i32, height: i32) -> Self {
         let y = rand::random_range(0..height);
         let x = rand::random_range(0..width);
         Point::new(x, y)
     }
+}
 
-    pub fn draw(&self, image: &mut Image) {
-        image.display(self.x, self.y, Color::white());
+impl Drawable for Point {
+    fn draw(&self, image: &mut Image) {
+        image.display(self.x, self.y, self.color());
     }
 }
 
@@ -63,7 +70,7 @@ impl Line {
         let mut points = Vec::new();
         let dx = self.b.x - self.a.x;
         let dy = self.b.y - self.a.y;
-        let quantity = if dx.abs()>dy.abs() {dx.abs()}  else {dy.abs()};
+        let quantity = dx.abs() + dy.abs() ;
         for i in 0..=quantity {
             let t = (i as f32) / (quantity as f32);
             let x_pnt = (self.a.x as f32) + (dx as f32) * t;
@@ -72,8 +79,10 @@ impl Line {
         }
         points
     }
+}
 
-    pub fn draw(&self, image: &mut Image) {
+impl Drawable for Line {
+    fn draw(&self, image: &mut Image) {
         let points = &self.get_points();
         for point in points {
             point.draw(image);
@@ -92,8 +101,9 @@ impl Triangle {
     pub fn new(a: &Point, b: &Point, c: &Point) -> Self {
         Self { a: a.clone(), b: b.clone(), c: c.clone() }
     }
-
-    pub fn draw(&self, image: &mut Image) {
+}
+impl Drawable for Triangle {
+     fn draw(&self, image: &mut Image) {
         Line::new(self.a.clone(), self.b.clone()).draw(image);
         Line::new(self.b.clone(), self.c.clone()).draw(image);
         Line::new(self.c.clone(), self.a.clone()).draw(image);
@@ -111,8 +121,10 @@ impl Rectangle {
     pub fn new(a: &Point, b: &Point) -> Self {
         Self { a: a.clone(), b: b.clone() }
     }
+}
 
-    pub fn draw(&self, image: &mut Image) {
+impl Drawable for Rectangle {
+    fn draw(&self, image: &mut Image) {
         Line::new(self.a.clone(), Point::new(self.b.clone().x, self.a.clone().y)).draw(image);
         Line::new(Point::new(self.b.clone().x, self.a.clone().y), self.b.clone()).draw(image);
         Line::new(self.b.clone(), Point::new(self.a.clone().x, self.b.clone().y)).draw(image);
@@ -141,8 +153,19 @@ impl Circle {
         let radius = rand::random_range(0..=width.min(height));
         Circle::new(Point::new(x_point, y_point), radius)
     }
+}
 
-    pub fn draw(&self, image: &mut Image) {
+
+
+impl Drawable for Circle {
+    fn color(&self)-> Color {
+        let r = rand::random_range(0..=255);
+        let g = rand::random_range(0..=255);
+        let b = rand::random_range(0..=255);
+        Color::Rgb(r,g,b)
+    }
+    fn draw(&self, image: &mut Image) {
+        let teta = 0;
 
 
     }
