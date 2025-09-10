@@ -16,7 +16,7 @@ pub trait Displayable {
 }
 
 // struct of point implementation
-#[derive(Clone, Debug)]
+#[derive(Clone,Debug)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -27,7 +27,7 @@ pub struct Point {
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
-        Self { x, y }
+        Self { x, y}
     }
     pub fn random(width: i32, height: i32) -> Self {
         let y = rand::random_range(0..height);
@@ -70,7 +70,7 @@ impl Line {
         let mut points = Vec::new();
         let dx = self.b.x - self.a.x;
         let dy = self.b.y - self.a.y;
-        let quantity = dx.abs() + dy.abs();
+        let quantity = dx.abs().min(dy.abs());
         for i in 0..=quantity {
             let t = (i as f32) / (quantity as f32);
             let x_pnt = (self.a.x as f32) + (dx as f32) * t;
@@ -172,9 +172,9 @@ impl Drawable for Circle {
     fn draw(&self, image: &mut Image) {
         let perimter = 2.0 * PI * (self.radius as f64);
         let steps = (2.0 * PI) / (perimter as f64);
-        let mut i: f64 = 1.0;
+        let mut i: f64 = 0.0;
         let color = Circle::color();
-        while i <= perimter {
+        while i <= 2.0*PI {
             let x = (self.center.x as f64) + (self.radius as f64) * i.cos();
             let y = (self.center.y as f64) + (self.radius as f64) * i.sin();
             image.display(x.round() as i32, y.round() as i32, color.clone());
